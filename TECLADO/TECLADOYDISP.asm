@@ -4,9 +4,7 @@ LIST P=16F887
     __CONFIG _CONFIG1, _FOSC_XT & _WDTE_OFF & _PWRTE_ON & _MCLRE_ON & _LVP_OFF
     __CONFIG _CONFIG2, _WRT_OFF
 
-;====================================================
 ; VARIABLES
-;====================================================
 
 DIG0     EQU 0x21
 DIG1     EQU 0x22
@@ -24,9 +22,8 @@ REG2     EQU 0x29
 REG3     EQU 0x2A
 REG4     EQU 0x2B
 
-;====================================================
-; RESET / INTERRUPCIONES
-;====================================================
+
+ / INTERRUPCIONES
 
     ORG 0x00
     GOTO INICIO
@@ -34,12 +31,12 @@ REG4     EQU 0x2B
     ORG 0x04
     GOTO ISR
 
-;====================================================
-; TABLA 7 SEGMENTOS
-;====================================================
+
+
+
 
     ORG 0x05
-
+; TABLA 
 TABLA:
     ADDWF PCL,F
 
@@ -54,10 +51,6 @@ TABLA:
     RETLW 0x7F ;8
     RETLW 0x6F ;9
 
-;====================================================
-; INICIO
-;====================================================
-
 INICIO:
 
     BSF STATUS,RP0
@@ -67,46 +60,41 @@ INICIO:
     CLRF TRISD
 MOVLW B'11110000'
     MOVWF IOCB
-; RB0-RB3 salida
-; RB4-RB7 entrada
+; configurar puerto B
     MOVLW B'11110000'
     MOVWF TRISB
 
 ; PORTC salida
     CLRF TRISC
 
-; pullups ON
-; prescaler 1:32
+; pullups y prescaler 1:32
     MOVLW B'00000100'
     MOVWF OPTION_REG
 
-; banco 3
+; banco 3, salida digital
     BSF STATUS,RP1
     CLRF ANSELH
 
-; banco 0
     BCF STATUS,RP0
     BCF STATUS,RP1
 
     CLRF PORTC
     CLRF PORTD
 
-; filas inactivas
     MOVLW B'11110000'
     MOVWF PORTB
 
-; timer0
+; precarga del timer0
     MOVLW D'100'
     MOVWF TMR0
 
 ; limpiar mismatch
     MOVF PORTB,W
 
-; limpiar flags
     BCF INTCON,RBIF
     BCF INTCON,T0IF
 
-; GIE T0IE RBIE
+; habilitar interrupciones
     MOVLW B'10101000'
     MOVWF INTCON
 
@@ -117,64 +105,39 @@ MOVLW B'11110000'
 
     CLRF ACTUAL
 
-;====================================================
-; LOOP VACIO
-;====================================================
-
 LOOP:
     GOTO LOOP
 
-;====================================================
-; ISR
-;====================================================
-
 ISR:
-
-;--------------------------------
-; GUARDAR CONTEXTO
-;--------------------------------
-
-    MOVWF W_TEMP
+    MOVWF W_TEMP ;contexto
 
     SWAPF STATUS,W
     MOVWF S_TEMP
 
-;--------------------------------
-; INTERRUPCION RB
-;--------------------------------
+
 
     BTFSC INTCON,RBIF
     GOTO INTERB
-
-;--------------------------------
-; TIMER0
-;--------------------------------
-
     GOTO INTERT
-
-;====================================================
-; INTERRUPCION RB
-;====================================================
 
 INTERB:
 
 ; limpiar mismatch
     MOVF PORTB,W
 
-; limpiar flag
+
     BCF INTCON,RBIF
 
-; leer teclado
+
     CALL LEER_TECLADO
 
-; tecla valida?
     MOVF TECLA,W
     SUBLW D'9'
 
     BTFSS STATUS,C
     GOTO FIN_INTER
 
-; desplazar displays
+
     MOVF DIG1,W
     MOVWF DIG0
 
@@ -189,19 +152,11 @@ INTERB:
 
     GOTO FIN_INTER
 
-;====================================================
-; LEER TECLADO
-;====================================================
 
 LEER_TECLADO:
 
     MOVLW 0xFF
     MOVWF TECLA
-
-;--------------------------------
-; FILA 0
-;--------------------------------
-
     MOVLW B'00001110'
     MOVWF PORTB
 
@@ -215,10 +170,6 @@ LEER_TECLADO:
 
     BTFSS PORTB,6
     GOTO TECLA_3
-
-;--------------------------------
-; FILA 1
-;--------------------------------
 
     MOVLW B'00001101'
     MOVWF PORTB
@@ -234,10 +185,6 @@ LEER_TECLADO:
     BTFSS PORTB,6
     GOTO TECLA_6
 
-;--------------------------------
-; FILA 2
-;--------------------------------
-
     MOVLW B'00001011'
     MOVWF PORTB
 
@@ -252,10 +199,6 @@ LEER_TECLADO:
     BTFSS PORTB,6
     GOTO TECLA_9
 
-;--------------------------------
-; FILA 3
-;--------------------------------
-
     MOVLW B'00000111'
     MOVWF PORTB
 
@@ -267,11 +210,7 @@ LEER_TECLADO:
 ; ninguna tecla
 CLRF PORTB
     RETURN
-
-;====================================================
-; TECLAS
-;====================================================
-
+;Teclas
 TECLA_0:
     MOVLW D'0'
     GOTO GUARDA_TECLA
@@ -312,14 +251,10 @@ TECLA_9:
     MOVLW D'9'
     GOTO GUARDA_TECLA
 
-;====================================================
-; GUARDAR TECLA
-;====================================================
-
 GUARDA_TECLA:
 
     MOVWF TECLA
-
+;Para no registrar un mismo numero varias veces en una pulsada
 ESPERA_SOLTAR:
 
     MOVLW B'00000000'
@@ -341,10 +276,6 @@ ESPERA_SOLTAR:
 
     RETURN
 
-;====================================================
-; DELAY
-;====================================================
-
 DELAY_SCAN:
 
     MOVLW D'1'
@@ -362,10 +293,6 @@ DS2:
     GOTO DS1
 
     RETURN
-
-;====================================================
-; ANTIRREBOTE
-;====================================================
 
 ANTIRREBOTE:
 
@@ -385,10 +312,6 @@ AR2:
 
     RETURN
 
-;====================================================
-; TIMER0 DISPLAY
-;====================================================
-
 INTERT:
 
     BCF INTCON,T0IF
@@ -399,19 +322,11 @@ INTERT:
 ; apagar displays
     CLRF PORTC
 
-;--------------------------------
-; DISPLAY 0
-;--------------------------------
-
     MOVF ACTUAL,W
     XORLW D'0'
 
     BTFSC STATUS,Z
     GOTO DISP0
-
-;--------------------------------
-; DISPLAY 1
-;--------------------------------
 
     MOVF ACTUAL,W
     XORLW D'1'
@@ -419,23 +334,15 @@ INTERT:
     BTFSC STATUS,Z
     GOTO DISP1
 
-;--------------------------------
-; DISPLAY 2
-;--------------------------------
-
     MOVF ACTUAL,W
     XORLW D'2'
 
     BTFSC STATUS,Z
     GOTO DISP2
 
-;--------------------------------
-; DISPLAY 3
-;--------------------------------
-
     GOTO DISP3
 
-;====================================================
+
 
 DISP0:
 
@@ -447,8 +354,6 @@ DISP0:
 
     GOTO AVANZAR
 
-;====================================================
-
 DISP1:
 
     MOVF DIG1,W
@@ -458,9 +363,6 @@ DISP1:
     BSF PORTC,1
 
     GOTO AVANZAR
-
-;====================================================
-
 DISP2:
 
     MOVF DIG2,W
@@ -471,8 +373,6 @@ DISP2:
 
     GOTO AVANZAR
 
-;====================================================
-
 DISP3:
 
     MOVF DIG3,W
@@ -480,8 +380,6 @@ DISP3:
     MOVWF PORTD
 
     BSF PORTC,3
-
-;====================================================
 
 AVANZAR:
 
@@ -495,9 +393,6 @@ AVANZAR:
 
     GOTO FIN_INTER
 
-;====================================================
-; FIN ISR
-;====================================================
 
 FIN_INTER:
 
@@ -509,6 +404,5 @@ FIN_INTER:
 
     RETFIE
 
-;====================================================
 
 END
