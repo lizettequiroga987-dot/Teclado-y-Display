@@ -1,0 +1,5 @@
+Warning[205] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\INTERRUPCIONESS.X\TP3.ASM 1 : Found directive in column 1. (LIST)
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\INTERRUPCIONESS.X\TP3.ASM 43 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\INTERRUPCIONESS.X\TP3.ASM 44 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\INTERRUPCIONESS.X\TP3.ASM 49 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\INTERRUPCIONESS.X\TP3.ASM 51 : Register in operand not in bank 0.  Ensure that bank bits are correct.

@@ -1,0 +1,10 @@
+Warning[205] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 1 : Found directive in column 1. (LIST)
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 67 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[203] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 68 : Found opcode in column 1. (MOVLW)
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 69 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 73 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 76 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 81 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 85 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Warning[203] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 268 : Found opcode in column 1. (CLRF)
+Warning[205] C:\USERS\LIZETTE QUIROGA\MPLABXPROJECTS\TECLADO POLLING.X\POLLING2.ASM 514 : Found directive in column 1. (END)
