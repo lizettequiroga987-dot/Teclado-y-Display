@@ -3,40 +3,24 @@ LIST P=16F887
 
     __CONFIG _CONFIG1, _FOSC_XT & _WDTE_OFF & _PWRTE_ON & _MCLRE_ON & _LVP_OFF
     __CONFIG _CONFIG2, _WRT_OFF
-
-; VARIABLES
-
 DIG0     EQU 0x21
 DIG1     EQU 0x22
 DIG2     EQU 0x23
 DIG3     EQU 0x24
-
 ACTUAL   EQU 0x25
-
 W_TEMP   EQU 0x26
 S_TEMP   EQU 0x27
-
 TECLA    EQU 0x28
-
 REG2     EQU 0x29
 REG3     EQU 0x2A
 REG4     EQU 0x2B
-
-
- / INTERRUPCIONES
-
+     
     ORG 0x00
     GOTO INICIO
 
     ORG 0x04
-    GOTO ISR
-
-
-
-
-
+    GOTO INTER
     ORG 0x05
-; TABLA 
 TABLA:
     ADDWF PCL,F
 
@@ -50,51 +34,36 @@ TABLA:
     RETLW 0x07 ;7
     RETLW 0x7F ;8
     RETLW 0x6F ;9
-
 INICIO:
 
     BSF STATUS,RP0
     BCF STATUS,RP1
-
-; PORTD salida
+    
     CLRF TRISD
-MOVLW B'11110000'
+    MOVLW B'11110000'
     MOVWF IOCB
-; configurar puerto B
     MOVLW B'11110000'
     MOVWF TRISB
-
-; PORTC salida
     CLRF TRISC
-
-; pullups y prescaler 1:32
     MOVLW B'00000100'
     MOVWF OPTION_REG
 
-; banco 3, salida digital
     BSF STATUS,RP1
     CLRF ANSELH
-
     BCF STATUS,RP0
     BCF STATUS,RP1
-
     CLRF PORTC
     CLRF PORTD
 
     MOVLW B'11110000'
     MOVWF PORTB
-
-; precarga del timer0
     MOVLW D'100'
     MOVWF TMR0
-
-; limpiar mismatch
     MOVF PORTB,W
 
     BCF INTCON,RBIF
     BCF INTCON,T0IF
-
-; habilitar interrupciones
+    
     MOVLW B'10101000'
     MOVWF INTCON
 
@@ -102,41 +71,28 @@ MOVLW B'11110000'
     CLRF DIG1
     CLRF DIG2
     CLRF DIG3
-
     CLRF ACTUAL
 
 LOOP:
     GOTO LOOP
 
-ISR:
-    MOVWF W_TEMP ;contexto
-
+INTER:
+    MOVWF W_TEMP
     SWAPF STATUS,W
     MOVWF S_TEMP
-
-
 
     BTFSC INTCON,RBIF
     GOTO INTERB
     GOTO INTERT
 
 INTERB:
-
-; limpiar mismatch
     MOVF PORTB,W
-
-
     BCF INTCON,RBIF
-
-
     CALL LEER_TECLADO
-
     MOVF TECLA,W
     SUBLW D'9'
-
     BTFSS STATUS,C
     GOTO FIN_INTER
-
 
     MOVF DIG1,W
     MOVWF DIG0
@@ -152,14 +108,12 @@ INTERB:
 
     GOTO FIN_INTER
 
-
 LEER_TECLADO:
 
     MOVLW 0xFF
     MOVWF TECLA
     MOVLW B'00001110'
     MOVWF PORTB
-
     CALL DELAY_SCAN
 
     BTFSS PORTB,4
@@ -210,199 +164,136 @@ LEER_TECLADO:
 ; ninguna tecla
 CLRF PORTB
     RETURN
-;Teclas
+
 TECLA_0:
     MOVLW D'0'
     GOTO GUARDA_TECLA
-
 TECLA_1:
     MOVLW D'1'
     GOTO GUARDA_TECLA
-
 TECLA_2:
     MOVLW D'2'
     GOTO GUARDA_TECLA
-
 TECLA_3:
     MOVLW D'3'
     GOTO GUARDA_TECLA
-
 TECLA_4:
     MOVLW D'4'
     GOTO GUARDA_TECLA
-
 TECLA_5:
     MOVLW D'5'
     GOTO GUARDA_TECLA
-
 TECLA_6:
     MOVLW D'6'
     GOTO GUARDA_TECLA
-
 TECLA_7:
     MOVLW D'7'
     GOTO GUARDA_TECLA
-
 TECLA_8:
     MOVLW D'8'
     GOTO GUARDA_TECLA
-
 TECLA_9:
     MOVLW D'9'
     GOTO GUARDA_TECLA
-
 GUARDA_TECLA:
-
     MOVWF TECLA
 ;Para no registrar un mismo numero varias veces en una pulsada
 ESPERA_SOLTAR:
-
     MOVLW B'00000000'
     MOVWF PORTB
-
     CALL DELAY_SCAN
-
     MOVF PORTB,W
     ANDLW B'11110000'
     XORLW B'11110000'
-
     BTFSS STATUS,Z
     GOTO ESPERA_SOLTAR
-
     CALL ANTIRREBOTE
-
     MOVLW B'00001111'
     MOVWF PORTB
-
     RETURN
 
 DELAY_SCAN:
-
     MOVLW D'1'
     MOVWF REG2
-
 DS1:
     MOVLW D'100'
     MOVWF REG3
-
 DS2:
     DECFSZ REG3,F
     GOTO DS2
-
     DECFSZ REG2,F
     GOTO DS1
-
     RETURN
 
 ANTIRREBOTE:
-
     MOVLW D'1'
     MOVWF REG2
-
 AR1:
     MOVLW D'100'
     MOVWF REG3
-
 AR2:
     DECFSZ REG3,F
     GOTO AR2
-
     DECFSZ REG2,F
     GOTO AR1
-
     RETURN
 
 INTERT:
-
     BCF INTCON,T0IF
-
     MOVLW D'100'
     MOVWF TMR0
-
-; apagar displays
     CLRF PORTC
-
+    
     MOVF ACTUAL,W
     XORLW D'0'
-
     BTFSC STATUS,Z
     GOTO DISP0
-
+    
     MOVF ACTUAL,W
     XORLW D'1'
-
     BTFSC STATUS,Z
     GOTO DISP1
 
     MOVF ACTUAL,W
     XORLW D'2'
-
     BTFSC STATUS,Z
     GOTO DISP2
-
     GOTO DISP3
-
-
-
 DISP0:
-
     MOVF DIG0,W
     CALL TABLA
     MOVWF PORTD
-
     BSF PORTC,0
-
     GOTO AVANZAR
-
 DISP1:
-
     MOVF DIG1,W
     CALL TABLA
     MOVWF PORTD
-
     BSF PORTC,1
-
     GOTO AVANZAR
 DISP2:
-
     MOVF DIG2,W
     CALL TABLA
     MOVWF PORTD
-
     BSF PORTC,2
-
     GOTO AVANZAR
-
 DISP3:
-
     MOVF DIG3,W
     CALL TABLA
     MOVWF PORTD
-
     BSF PORTC,3
-
 AVANZAR:
-
     INCF ACTUAL,F
-
     MOVF ACTUAL,W
     SUBLW D'4'
-
     BTFSC STATUS,Z
     CLRF ACTUAL
-
     GOTO FIN_INTER
-
-
 FIN_INTER:
-
     SWAPF S_TEMP,W
     MOVWF STATUS
-
     SWAPF W_TEMP,F
     SWAPF W_TEMP,W
 
     RETFIE
-
-
 END
